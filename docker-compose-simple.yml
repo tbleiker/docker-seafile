@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+   seafile:
+      build: docker/.
+      container_name: seafile
+      restart: unless-stopped
+      ports:
+         - "8000:8000"
+         - "8082:8082"
+      volumes:
+         - ./data:/shared
+      environment:
+         SEAFILE_SERVER_IP: "0.0.0.0"
+         SEAHUB_ADMIN_EMAIL: "admin@example.com"
+         SEAHUB_ADMIN_PWD: "password"

@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+   seafile:
+      build: docker/.
+      container_name: seafile
+      restart: unless-stopped
+      networks:
+         - traefik
+      volumes:
+         - ./data:/shared
+      environment:
+         SEAFILE_SERVER_IP: "www.example.com"
+         SEAHUB_ADMIN_EMAIL: "admin@example.com"
+         SEAHUB_ADMIN_PWD: "password"
+         SEAFDAV_ENABLED: "true"
+         SEAFDAV_FASTCGI: "false"
+         SEAFDAV_SHARE_NAME: "/dav"
+      labels:
+         traefik.enable: "true"
+         traefik.docker.network: "traefik"
+         traefik.seafgui.frontend.rule: "Host:www.example.com"
+         traefik.seafgui.backend: "seafile webapp"
+         traefik.seafgui.port: "8000"
+         traefik.seafdav.frontend.rule: "Host:www.example.com;PathPrefix:/dav"
+         traefik.seafdav.backend: "seafile dav"
+         traefik.seafdav.port: "8080"
+         traefik.seafhttp.frontend.rule: "Host:example.com;PathPrefixStrip:/seafhttp"
+         traefik.seafhttp.backend: "seafile server"
+         traefik.seafhttp.port: "8082"
+
+networks:
+   traefik: 
+      external: true

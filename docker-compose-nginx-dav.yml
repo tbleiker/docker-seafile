@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+   seafile:
+      build: docker/.
+      container_name: seafile
+      restart: unless-stopped
+      networks:
+         - seafile_proxy
+      volumes:
+         - ./data:/shared
+      environment:
+         SEAFILE_SERVER_IP: "www.example.com"
+         SEAHUB_ADMIN_EMAIL: "admin@example.com"
+         SEAHUB_ADMIN_PWD: "password"
+         SEAFDAV_ENABLED: "true"
+         SEAFDAV_FASTCGI: "false"
+         SEAFDAV_SHARE_NAME: "/dav"
+
+   nginx:
+      image: nginx
+      container_name: seafile_nginx
+      restart: unless-stopped
+      depends_on:
+         - seafile
+      networks:
+         - seafile_proxy
+      links:
+         - seafile
+      ports:
+         - "80:80"
+         - "443:443"
+      volumes:
+         - ./config/seafile-dav.nginx.conf:/etc/nginx/conf.d/seafile.nginx.conf:ro
+
+networks:
+   seafile_proxy:

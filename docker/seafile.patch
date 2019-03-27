@@ -1,0 +1,12 @@
+diff -ruN seafile-server-6.3.4_orig/setup-seafile.sh seafile-server-6.3.4/setup-seafile.sh
+--- seafile-server-6.3.4_orig/setup-seafile.sh	2018-09-15 10:53:31.000000000 +0200
++++ seafile-server-6.3.4/setup-seafile.sh	2019-03-23 11:03:47.109881794 +0100
+@@ -354,7 +354,7 @@
+ }
+ 
+ function parse_params() {
+-    while getopts n:i:p:d arg; do
++    while getopts n:i:p:d: arg; do
+         case $arg in
+             n)
+                 server_name=${OPTARG}
