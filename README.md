@@ -24,6 +24,7 @@ This image is created with the following in mind:
 - ability to configure Collabora and Onlyoffice
 - ability to set SMTP settings
 - ability to set uid/gid of seafile files (incl. uploaded user files)
+- push image to Docker Hub
 - ... (you tell me...)
 
 
