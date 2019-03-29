@@ -116,25 +116,14 @@ else
 fi
 
 
-# set default value for MODE and run it
-if [ -z ${MODE+x} ]; then
-  MODE=${1:-"run"}
+# start services
+if [[ $SEAFILE_SERVICES == *"seafile"* ]]; then
+   run_as_user "${SEAFILE_INSTALL_DIR}/seafile.sh start"
+   log=${SEAFILE_ROOT_DIR}/logs/seafile.log
 fi
-
-case $MODE in
-   "run")
-      run_as_user "${SEAFILE_INSTALL_DIR}/seafile.sh start"
-      run_as_user "${SEAFILE_INSTALL_DIR}/seahub.sh start"
-      log=${SEAFILE_ROOT_DIR}/logs/seahub.log
-   ;;
-   "run_server")
-      run_as_user "${SEAFILE_INSTALL_DIR}/seafile.sh start"
-      log=${SEAFILE_ROOT_DIR}/logs/seafile.log
-   ;;
-   "run_seahub")
-      run_as_user "${SEAFILE_INSTALL_DIR}/seahub.sh start"
-      log=${SEAFILE_ROOT_DIR}/logs/seahub.log
-   ;;
-esac
+if [[ $SEAFILE_SERVICES == *"seahub"* ]]; then
+   run_as_user "${SEAFILE_INSTALL_DIR}/seahub.sh start"
+   log=${SEAFILE_ROOT_DIR}/logs/seahub.log
+fi
 
 run_as_user "tail -n 0 -f $log"
