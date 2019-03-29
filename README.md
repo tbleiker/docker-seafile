@@ -16,6 +16,11 @@ This image is created with the following in mind:
 
 ## Development
 
+For this docker image, I took inspiration from
+- [Gronis/docker-seafile](https://github.com/Gronis/docker-seafile)
+- [VGoshev/seafile-docker](https://github.com/VGoshev/seafile-docker)
+- [haiwen/seafile-docker](https://github.com/haiwen/seafile-docker)
+
 **To Do List**
 - failure handling in entrypoint.sh (e.g. if seafile setup script fails)
 - implement script to run garbage collector
