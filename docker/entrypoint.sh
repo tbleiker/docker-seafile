@@ -14,6 +14,14 @@ run_as_user() {
 }
 
 
+exit_on_failure() {
+   if [ $1 -ne 0 ]; then
+      echo "$2"
+      exit
+   fi
+}
+
+
 setup_seafile() {
    # command to setup seafile with sqlite3
    # note: do not specify parameter -d --> data folder is moved and linked afterwards
@@ -23,6 +31,7 @@ setup_seafile() {
    cmd+="-p $SEAFILE_SERVER_PORT "
    
    run_as_user "$cmd"
+   exit_on_failure $?
    
    # prevent seahub to ask for admin email and password on first startup
    sed -i 's/= ask_admin_email()/= '"\"${SEAHUB_ADMIN_EMAIL}\""'/' ${SEAFILE_INSTALL_DIR}/check_init_admin.py
@@ -35,8 +44,8 @@ setup_seafile() {
    run_as_user "${SEAFILE_INSTALL_DIR}/seahub.sh stop"
    
    # move some folders to volume $SEAFILE_DATA_DIR to allow persistant storage
-   for DIR in "ccnet" "conf" "logs" "seafile-data" "seahub-data"; do
-      mv ${SEAFILE_ROOT_DIR}/$DIR $SEAFILE_DATA_DIR
+   for folder in "ccnet" "conf" "logs" "seafile-data" "seahub-data"; do
+      mv ${SEAFILE_ROOT_DIR}/$folder $SEAFILE_DATA_DIR
    done
    
    # if sqlite is used, move seahub.db to volume $SEAFILE_DATA_DIR as well 
@@ -49,8 +58,23 @@ setup_seafile() {
 
 
 update_seafile() {
-   # to be implemented soon... :)
-   sleep 1
+   # get the first two numbers from the version file and grep with that information all update 
+   # scripts which have to be run
+   version_major=$(cat $SEAFILE_DATA_DIR/version | grep -oP "\d.\d")
+   update_scripts=`echo $(ls $SEAFILE_INSTALL_DIR/upgrade/upgrade*)`
+   update_scripts=`echo $update_scripts | grep -oP "$SEAFILE_INSTALL_DIR/upgrade/upgrade_$version_major.*$"`
+   
+   for script in $update_scripts; do
+      run_as_user "$script"
+      exit_on_failure $?
+   done
+   
+   # Having done the major upgrades, perform a minor upgrade
+   run_as_user "$SEAFILE_INSTALL_DIR/upgrade/minor-upgrade.sh"
+   exit_on_failure $?
+   
+   # last but not least, write the new version to the version file
+   echo $SEAFILE_VERSION > $SEAFILE_DATA_DIR/version
 }
 
 
@@ -81,22 +105,23 @@ if [ ! -e "$SEAFILE_DATA_DIR/version" ]; then
 fi
 
 
-# check the verion and run the updates if necessary
-check_version=`fgrep -c "$SEAFILE_VERSION" $SEAFILE_DATA_DIR/version`
-if [ $check_version -eq 0 ]; then
-   update_seafile
-fi
-
-
 # symlink the folders on the volume $SEAFILE_DATA_DIR
-for DIR in "ccnet" "conf" "logs" "seafile-data" "seahub-data"; do
-   ln -s $SEAFILE_DATA_DIR/$DIR ${SEAFILE_ROOT_DIR}/$DIR
+for folder in "ccnet" "conf" "logs" "seafile-data" "seahub-data"; do
+   ln -s $SEAFILE_DATA_DIR/$folder ${SEAFILE_ROOT_DIR}/$folder
 done
 
 # if sqlite is used, symlink the database seahub.db as well
 if [ -e ${SEAFILE_DATA_DIR}/seahub.db ]; then
    ln -s $SEAFILE_DATA_DIR/seahub.db ${SEAFILE_ROOT_DIR}/seahub.db
 fi
+
+
+# check the verion and run the updates if necessary (must be run after symlinks are created)
+check_version=`fgrep -c "$SEAFILE_VERSION" $SEAFILE_DATA_DIR/version`
+if [ $check_version -eq 0 ]; then
+   update_seafile
+fi
+
 
 # now set all settings which can be specified with environment variables
 crudini --set ${SEAFILE_DATA_DIR}/conf/seafdav.conf WEBDAV enabled $SEAFDAV_ENABLED

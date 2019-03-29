@@ -22,9 +22,9 @@ For this docker image, I took inspiration from
 - [haiwen/seafile-docker](https://github.com/haiwen/seafile-docker)
 
 **To Do List**
-- [ ] failure handling in entrypoint.sh (e.g. if seafile setup script fails)
+- [x] failure handling in entrypoint.sh (e.g. if seafile setup script fails)
 - [x] add script to run garbage collector
-- [ ] run update scripts if necessary (none are run at the moment)
+- [x] run update scripts if necessary (none are run at the moment)
 - [ ] ability to configure (external) mysql
 - [ ] ability to configure Collabora and Onlyoffice
 - [ ] ability to set SMTP settings
