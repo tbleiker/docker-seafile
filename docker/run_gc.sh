@@ -18,6 +18,9 @@ else
    exit
 fi
 
+echo "Giving the server some time to shut down..."
+sleep 5
+
 
 # run garbage cleaner as user seafile
 (
