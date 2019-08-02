@@ -20,7 +20,7 @@ RUN apt-get install -y patch curl crudini procps sqlite3 python2.7 libpython2.7 
 ARG SEAFILE_USER_UID=5342
 ARG SEAFILE_USER_GID=5342
 
-ENV SEAFILE_VERSION=6.3.4 \
+ENV SEAFILE_VERSION=7.0.4 \ 
     SEAFILE_ROOT_DIR=/opt/seafile \
     SEAFILE_DATA_DIR=/shared \
     SEAFILE_SERVER_NAME=seafile \
@@ -40,16 +40,12 @@ ENV SEAFILE_VERSION=6.3.4 \
     TIMEZONE=Europe/Zurich
 
 
-COPY seafile.patch $SEAFILE_ROOT_DIR/
-
 RUN groupadd -g ${SEAFILE_USER_GID} seafile \
     && useradd -m -u ${SEAFILE_USER_UID} -g ${SEAFILE_USER_GID} -s /bin/false seafile \
+    && mkdir $SEAFILE_ROOT_DIR \
     && mkdir $SEAFILE_DATA_DIR \
-    && curl https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz | \
-            tar xz -C $SEAFILE_ROOT_DIR \
-    && ln -s $SEAFILE_ROOT_DIR/seafile-server-${SEAFILE_VERSION} \ 
-          $SEAFILE_ROOT_DIR/seafile-server-latest \
-    && patch -p0 -d $SEAFILE_ROOT_DIR < $SEAFILE_ROOT_DIR/seafile.patch \
+    && curl https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz | tar xz -C $SEAFILE_ROOT_DIR \
+    && ln -s $SEAFILE_ROOT_DIR/seafile-server-${SEAFILE_VERSION} $SEAFILE_ROOT_DIR/seafile-server-latest \
     && chown -R seafile:seafile $SEAFILE_ROOT_DIR \
     && chown -R seafile:seafile $SEAFILE_DATA_DIR
 

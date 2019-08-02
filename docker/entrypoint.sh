@@ -123,6 +123,9 @@ if [ $check_version -eq 0 ]; then
 fi
 
 
+# make sure to bind to 0.0.0.0 and not localhost
+sed -i -e 's/127.0.0.1/0.0.0.0/g' ${SEAFILE_DATA_DIR}/conf/gunicorn.conf
+
 # now set all settings which can be specified with environment variables
 crudini --set ${SEAFILE_DATA_DIR}/conf/seafdav.conf WEBDAV enabled $SEAFDAV_ENABLED
 crudini --set ${SEAFILE_DATA_DIR}/conf/seafdav.conf WEBDAV port $SEAFDAV_PORT
